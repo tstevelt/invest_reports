@@ -19,6 +19,45 @@
 
 extern	double	xstock_ttm_dividends;
 
+static void InsertArray ( XSTOCK *ptrStock, XPORTFOLIO *ptrPortfolio, DATEVAL *BoughtDate, double *StockStartPrice )
+{
+	int		ndx;
+	double	TotalShares, ExtendCost;
+
+	TotalShares = ExtendCost = 0.0;
+	for ( ndx = 0; ndx < MstarCount; ndx++ )
+	{
+		if ( strcmp ( ptrStock->xsticker, MstarArray[ndx].Ticker ) == 0 )
+		{
+			TotalShares = MstarArray[ndx].Shares;
+			ExtendCost  = MstarArray[ndx].Shares * MstarArray[ndx].Cost;
+			
+			TotalShares += ptrPortfolio->xpshares;
+			ExtendCost  += ptrPortfolio->xpshares * ptrPortfolio->xpprice;
+
+			MstarArray[ndx].Shares = TotalShares;
+			MstarArray[ndx].Cost   = ExtendCost / TotalShares;
+
+			return;
+		}
+	}
+
+	if ( MstarCount >= PAID_MEMBER_PORTFOLIO_LIMIT )
+	{
+		printf ( "Exceeds %d records\n", PAID_MEMBER_PORTFOLIO_LIMIT );
+		exit ( 0 );
+	}
+
+	MstarArray[MstarCount].Type = ptrStock->xstype[0];
+	strcpy ( MstarArray[MstarCount].Ticker, ptrStock->xsticker );
+	memcpy ( &MstarArray[MstarCount].Date, BoughtDate, sizeof(DATEVAL) );
+	MstarArray[MstarCount].Shares = ptrPortfolio->xpshares;
+	MstarArray[MstarCount].Cost = *StockStartPrice;
+	MstarCount++;
+
+
+}
+
 int EachHistory ()
 {
 	return ( 0 );
@@ -63,46 +102,6 @@ int getdata ()
 		fprintf ( stderr, "LoadStock %s returned %d\n", xportfolio.xpticker, rv );
 		return ( 0 );
 	}
-
-	/*----------------------------------------------------------
-		STYLE_YOY does not include BONDS or CASH
-		+-------+----------+
-		| Stype | count(*) |
-		+-------+----------+
-		| A     |      380 |
-		| B     |       20 |
-		| C     |        8 |
-		| E     |     2822 |
-		| S     |     4091 |
-		+-------+----------+
-	----------------------------------------------------------*/
-/*+-------+----------+
-| Stype | count(*) |
-+-------+----------+
-| A     |      219 |
-| S     |     3302 |
-
-| B     |       24 |
-
-| E     |     2726 |
-
-| C     |        8 |
-	StockType = 'A';
-				StockType = 'A';
-				StockType = 'S';
-				StockType = 'E';
-				StockType = 'F';
-				StockType = 'C';
-
-/usr/local/include/invlib.h:#define		STYPE_BOND			'B'
-/usr/local/include/invlib.h:#define		STYPE_ETF			'E'
-/usr/local/include/invlib.h:#define		STYPE_PREFER		'P'
-/usr/local/include/invlib.h:#define		STYPE_STOCK			'S'
-/usr/local/include/invlib.h:#define		STYPE_ADR			'A'
-/usr/local/include/invlib.h:#define		STYPE_REIT			'R'
-/usr/local/include/invlib.h:#define		STYPE_CRYPTO		'C'
-/usr/local/include/invlib.h:#define		STYPE_OTHER			'?'
-+-------+----------+*/
 
 	switch ( StockType )
 	{
@@ -240,23 +239,6 @@ int getdata ()
 	OwnedYears = (double) OwnedDays / 365.0;
 	AnnualYield = 100.0 * xstock_ttm_dividends / xportfolio.xpprice;	
 
-	/*-------------------------------------------------------------------
-		replace estimate with real (if owned less than five years).
-xxx	if ( OwnedYears >= 1.0 )
-xxx	{
-xxx		TotalYield = AnnualYield * OwnedYears;
-xxx	}
-xxx	else
-xxx	{
-xxx		TotalYield = AnnualYield;
-xxx	}
-	-------------------------------------------------------------------*/
-
-if ( 1 == 2 && strcmp ( xportfolio.xpticker, "WBA" ) == 0 )
-{
-	printf ( "kilroy was here\n" );
-}
-
 	CollectedDividends = LoadDividendSum ( &MySql, xportfolio.xpticker, xportfolio.xpdate );
 	TotalYield = 100.0 * CollectedDividends / xportfolio.xpprice;
 
@@ -372,32 +354,22 @@ if ( Debug )
 			break;
 
 		case STYLE_MSTAR:
-			fprintf ( fpOutput, "%c|", xstock.xstype[0] );
-			fprintf ( fpOutput, "%s|", xportfolio.xpticker );
-			fprintf ( fpOutput, "%02d/%02d/%04d|", BoughtDateval.month, BoughtDateval.day, BoughtDateval.year4 );
-			fprintf ( fpOutput, "%.2f|", xportfolio.xpshares );
-			if ( xstock.xstype[0] == STYPE_BOND )
-			{
-				StockStartPrice = 1000.0;
-			}
-			fprintf ( fpOutput, "%.2f|", StockStartPrice );
+			/*---------------------------------------------------------------------------
+				Use array in order to combine duplicate symbols held in multiple accts.
+xxx				fprintf ( fpOutput, "%c|", xstock.xstype[0] );
+xxx				fprintf ( fpOutput, "%s|", xportfolio.xpticker );
+xxx				fprintf ( fpOutput, "%02d/%02d/%04d|", BoughtDateval.month, BoughtDateval.day, BoughtDateval.year4 );
+xxx				fprintf ( fpOutput, "%.2f|", xportfolio.xpshares );
+xxx				if ( xstock.xstype[0] == STYPE_BOND )
+xxx				{
+xxx					StockStartPrice = 1000.0;
+xxx				}
+xxx				fprintf ( fpOutput, "%.2f|", StockStartPrice );
+			---------------------------------------------------------------------------*/
+			InsertArray ( &xstock, &xportfolio, &BoughtDateval, &StockStartPrice );
 			break;
 
 		case STYLE_FUNDAMENTAL:
-/*----------------------------------------------------------
-	{ "TICKER",		"",		INIT_STRING_LEFT },
-	{ "NAME",		"",		INIT_STRING_LEFT },
-	{ "TYPE",		"",		INIT_STRING_CENTER },
-	{ "P/E (ttm)",	"",		INIT_DOUBLE_RIGHT },
-	{ "YIELD",		"",		INIT_DOUBLE_RIGHT },
-	{ "GROWTH",		"",		INIT_DOUBLE_RIGHT },
-	{ "BETA",		"",		INIT_DOUBLE_RIGHT },
-	{ "QUICK",		"",		INIT_DOUBLE_RIGHT },
-	{ "DEBT/EQUITY", "",	INIT_DOUBLE_RIGHT },
-	{ "ENTVAL/EBITDA", "",	INIT_DOUBLE_RIGHT },
-	{ "PRICE",		"",		INIT_DOUBLE_RIGHT },
-	{ "TARGET",		"",		INIT_DOUBLE_RIGHT },
-----------------------------------------------------------*/
 			fprintf ( fpOutput, "%s|", xportfolio.xpticker );
 			fprintf ( fpOutput, "%s|", xstock.xsname );
 			fprintf ( fpOutput, "%c|", xstock.xstype[0] );
@@ -597,16 +569,6 @@ if ( Debug )
 			}
 			else
 			{
-/*----------------------------------------------------------
-	{ "TICKER",		"", INIT_STRING_LEFT },
-	{ "CLOSE",		"", INIT_DOUBLE_RIGHT },
-	{ "FLAG",		"", INIT_STRING_CENTER" },
-	{ "OPEN",		"", INIT_DOUBLE_RIGHT },
-	{ "FLAG",		"", INIT_STRING_CENTER" },
-	{ "$ CHANGE",	"", INIT_DOUBLE_RIGHT },
-	{ "SHARES",		"", INIT_DOUBLE_RIGHT_TOTAL },
-	{ "GAIN/LOSS",	"", INIT_DOUBLE_RIGHT_TOTAL },
-----------------------------------------------------------*/
 				double	Diff;
 
 				if ( StockOpenPrice > 0.0 && StockClosePrice > 0.0 )
@@ -817,7 +779,10 @@ if ( Debug )
 			break;
 	}
 
-	fprintf ( fpOutput, "\n" );
+	if ( ReportStyle != STYLE_MSTAR )
+	{
+		fprintf ( fpOutput, "\n" );
+	}
 
 	return ( 0 );
 }

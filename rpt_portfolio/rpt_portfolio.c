@@ -15,7 +15,8 @@
 	tms		08/23/2022	Added stock.Sgrow5 field and FUNDAMENTAL report
 	tms		01/23/2023	Added Year Over Year performance report.
 	tms		07/17/2023	Added -broker option
-	tms		02/12/2024	Added Morningstart CSV report
+	tms		02/12/2024	Added MorningStar CSV report
+	tms		03/02/2024	Combinded duplicate tickers in MorningStar report.
 
 ----------------------------------------------------------------------------*/
 //     Invest report
@@ -89,21 +90,41 @@ int main ( int argc, char *argv[] )
 		nsStrcat ( WhereClause, Fragment );
 	}
 
-	LoadPortfolioCB ( &MySql, WhereClause, "Pticker", &xportfolio, (int(*)()) getdata, 1 );
+	LoadPortfolioCB ( &MySql, WhereClause, "Pticker,Pdate", &xportfolio, (int(*)()) getdata, 1 );
 
 	if ( ReportCount == 0 )
 	{
 		return ( 0 );
 	}
 
+	if ( ReportStyle == STYLE_MSTAR )
+	{
+		if (( fpOutput = fopen ( OutFileName, "w" )) == (FILE *) 0 )
+		{
+			printf ( "Cannot open %s for output\n", OutFileName );
+			exit ( 1 );
+		}
+		for ( int ndx = 0; ndx < MstarCount; ndx++ )
+		{
+			fprintf ( fpOutput, "%c|%s|%02d/%02d/%04d|%.4f|%.4f\n",
+				MstarArray[ndx].Type,
+				MstarArray[ndx].Ticker,
+				MstarArray[ndx].Date.month,
+				MstarArray[ndx].Date.day,
+				MstarArray[ndx].Date.year4,
+				MstarArray[ndx].Shares,
+				MstarArray[ndx].Cost );
+		}
+	}
+
+	nsFclose ( fpOutput );
+
 	if ( Debug )
 	{
-		nsFclose ( fpOutput );
 		sprintf ( xbuffer, "cat %s", OutFileName );
 		system ( xbuffer );
 		return ( 0 );
 	}
-	nsFclose ( fpOutput );
 
 	sortdata ( OutFileName );
 

@@ -67,6 +67,18 @@ TYPE	char	OneTicker[22];
 
 TYPE	REPORT_OPTIONS	ReportOptions;
 
+typedef struct
+{
+	char	Type;
+	char	Ticker[20];
+	DATEVAL	Date;
+	double	Shares;
+	double	Cost;
+} MSTAR_RECORD;
+
+TYPE	MSTAR_RECORD	MstarArray[PAID_MEMBER_PORTFOLIO_LIMIT];
+TYPE	int				MstarCount;
+
 /*----------------------------------------------------------
 	mysql and dbylib stuff
 ----------------------------------------------------------*/
