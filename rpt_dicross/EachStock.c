@@ -64,13 +64,6 @@ int EachStock ()
 	
 	/*----------------------------------------------------------
 		now load history for this stock
-xxx	int rv;
-xxx	rv = TA_MINUS_DI_Lookback ( 14 );
-xxx	printf ( "Minus lookback %d\n", rv );
-xxx	rv = TA_PLUS_DI_Lookback ( 14 );
-xxx	printf ( "Plus lookback %d\n", rv );
-xxx	rv = TA_ADX_Lookback ( 14 );
-xxx	printf ( "ADX lookback %d\n", rv );
 	----------------------------------------------------------*/
 	HistoryCount = 0;
 	memset ( HistoryArray, '\0', sizeof(HistoryArray) );
@@ -108,18 +101,6 @@ xxx	printf ( "ADX lookback %d\n", rv );
 
 	offset = outAdxBegIndex - outMinusBegIndex;
 
-	/*---------------------------------------------------------------------------
-		outMinusBegIndex 14
-		outMinusNBElement 238
-		outPlusBegIndex 14
-		outPlusNBElement 238
-		outAdxBegIndex 27
-		outAdxNBElement 225
-		DATE,CLOSE,ADX
-		2018-07-18,86.58,7.292
-		2018-07-19,87.00,8.153
-		2018-07-20,86.15,8.952
-	---------------------------------------------------------------------------*/
 #ifdef DEBUG
 	printf ( "outMinusBegIndex %d\n", outMinusBegIndex );
 	printf ( "outMinusNBElement %d\n", outMinusNBElement );

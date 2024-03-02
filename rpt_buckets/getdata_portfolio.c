@@ -1,22 +1,3 @@
-/*------------+------------------+------+-----+---------+----------------+
-| Field       | Type             | Null | Key | Default | Extra          |
-+-------------+------------------+------+-----+---------+----------------+
-| id          | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
-| Pticker     | varchar(20)      | NO   | MUL |         |                |
-| Pdate       | date             | NO   |     | NULL    |                |
-| Pshares     | double           | NO   |     | 0       |                |
-| Pprice      | double           | NO   |     | 0       |                |
-| Pbenchmark  | varchar(20)      | NO   | MUL |         |                |
-| Palert      | double           | YES  |     | 0       |                |
-| Poptexp     | date             | YES  |     | NULL    |                |
-| Pbroker     | char(10)         | YES  |     | NULL    |                |
-| Pmember     | int(11) unsigned | NO   | MUL | NULL    |                |
-| Ptrailpct   | double           | YES  |     | 0       |                |
-| Ptrailvalue | double           | YES  |     | 0       |                |
-| Palerttype  | char(1)          | YES  |     |         |                |
-| Palertprice | double           | YES  |     | 0       |                |
-| Pbucket     | int(4) unsigned  | YES  |     | 0       |                |
-+-------------+------------------+------+-----+---------+---------------*/
 //     Invest report
 // 
 //     Copyright (C)  2019 - 2024 Tom Stevelt

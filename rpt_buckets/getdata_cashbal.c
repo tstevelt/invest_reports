@@ -1,13 +1,3 @@
-/*----------+------------------+------+-----+---------+----------------+
-| Field     | Type             | Null | Key | Default | Extra          |
-+-----------+------------------+------+-----+---------+----------------+
-| id        | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
-| CBmember  | int(11) unsigned | NO   |     | NULL    |                |
-| CBacct    | varchar(30)      | NO   |     |         |                |
-| CBdate    | date             | NO   |     | NULL    |                |
-| CBamount  | double           | NO   |     | NULL    |                |
-| CBcomment | varchar(60)      | YES  |     | NULL    |                |
-+-----------+------------------+------+-----+---------+---------------*/
 //     Invest report
 // 
 //     Copyright (C)  2019 - 2024 Tom Stevelt

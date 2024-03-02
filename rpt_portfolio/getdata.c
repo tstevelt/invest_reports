@@ -356,15 +356,6 @@ if ( Debug )
 		case STYLE_MSTAR:
 			/*---------------------------------------------------------------------------
 				Use array in order to combine duplicate symbols held in multiple accts.
-xxx				fprintf ( fpOutput, "%c|", xstock.xstype[0] );
-xxx				fprintf ( fpOutput, "%s|", xportfolio.xpticker );
-xxx				fprintf ( fpOutput, "%02d/%02d/%04d|", BoughtDateval.month, BoughtDateval.day, BoughtDateval.year4 );
-xxx				fprintf ( fpOutput, "%.2f|", xportfolio.xpshares );
-xxx				if ( xstock.xstype[0] == STYPE_BOND )
-xxx				{
-xxx					StockStartPrice = 1000.0;
-xxx				}
-xxx				fprintf ( fpOutput, "%.2f|", StockStartPrice );
 			---------------------------------------------------------------------------*/
 			InsertArray ( &xstock, &xportfolio, &BoughtDateval, &StockStartPrice );
 			break;
