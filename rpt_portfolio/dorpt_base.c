@@ -100,13 +100,9 @@ void dorpt_base ( char *DataFilename )
 
 	fpData = rptinit ( DataFilename, &ReportOptions, ColumnArray, ColumnCount );
 
-	// /home/tms/src/Nutrition/rpthist/dorpt_food.c 
-
 	while ( fgets ( xbuffer, sizeof(xbuffer), fpData ) != (char *)0 )
 	{
-//printf ( "%s", xbuffer );
 		tokcnt = GetTokensA ( xbuffer, "|\n\r", tokens, MAXTOKS );
-//printf ( " tokcnt %d<br>\n", tokcnt );
 		rptline ( &ReportOptions, ColumnArray, ColumnCount, tokens, tokcnt-1  );
 	}
 
