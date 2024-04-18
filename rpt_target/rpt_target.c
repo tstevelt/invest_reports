@@ -11,6 +11,7 @@
 	---------------------------------------------------------------------
 	tms		02/11/2024	Add asset type section for cash, domestic and foreign
 	tms		02/11/2024	Add to website and Finish delivery methods.
+	tms		04/18/2024	Added target allocation fields to table invest.member
 
 ----------------------------------------------------------------------------*/
 //     Invest report
@@ -56,15 +57,20 @@ int main ( int argc, char *argv[] )
 		BOND      30.0
 		DOMESTIC  57.4
 		FOREIGN   10.1
+		McashT,MbondT,MdomT,MforT
+xxx	SummaryArray[0].Percent         = 2.5;
+xxx	SummaryArray[1].Percent         = 30.0;
+xxx	SummaryArray[2].Percent         = 57.4;
+xxx	SummaryArray[3].Percent         = 10.1;
 	----------------------------------------------------------*/
 	SummaryArray[0].AllocationType = CASH;
-	SummaryArray[0].Percent         = 2.5;
+	SummaryArray[0].Percent        = xmember.xmcasht;
 	SummaryArray[1].AllocationType = BOND_AND_CD;
-	SummaryArray[1].Percent         = 30.0;
+	SummaryArray[1].Percent        = xmember.xmbondt;
 	SummaryArray[2].AllocationType = DOMESTIC_EQUITY;
-	SummaryArray[2].Percent         = 57.4;
+	SummaryArray[2].Percent        = xmember.xmdomt;
 	SummaryArray[3].AllocationType = FOREIGN_EQUITY;
-	SummaryArray[3].Percent         = 10.1;
+	SummaryArray[3].Percent        = xmember.xmfort;
 	SummaryCount = 4;
 
 	getdata ();
