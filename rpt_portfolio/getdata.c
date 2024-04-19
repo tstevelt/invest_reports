@@ -93,6 +93,7 @@ int getdata ()
 	double	StockOpenPrice, StockClosePrice;
 	long	StockOpenTime, StockCloseTime;
 	char	StockOpenFlag, StockCloseFlag;
+	double	PercentInvest, PercentValue;
 
 	StockStartPrice = xportfolio.xpprice;
 
@@ -340,6 +341,8 @@ if ( Debug )
 	switch ( ReportStyle )
 	{
 		case STYLE_BASE:
+			PercentInvest = 100.0 * xportfolio.xpshares * StockStartPrice / TotalInvest;
+			PercentValue  = 100.0 * xportfolio.xpshares * StockYesterdayClose / TotalValue;;
 			fprintf ( fpOutput, "%s|", xportfolio.xpbroker );
 			fprintf ( fpOutput, "%c|", xstock.xstype[0] );
 			fprintf ( fpOutput, "%s|", xportfolio.xpticker );
@@ -347,8 +350,10 @@ if ( Debug )
 			fprintf ( fpOutput, "%.2f|", xportfolio.xpshares );
 			fprintf ( fpOutput, "%.2f|", StockStartPrice );
 			fprintf ( fpOutput, "%.2f|", xportfolio.xpshares * StockStartPrice );
+			fprintf ( fpOutput, "%.2f|", PercentInvest );
 			fprintf ( fpOutput, "%.2f|", StockYesterdayClose );
 			fprintf ( fpOutput, "%.2f|", xportfolio.xpshares * StockYesterdayClose );
+			fprintf ( fpOutput, "%.2f|", PercentValue );
 			fprintf ( fpOutput, "%.2f|", xportfolio.xpshares * (StockYesterdayClose-StockStartPrice) );
 			fprintf ( fpOutput, "%.2f|", StockPercent );
 			break;

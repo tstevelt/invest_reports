@@ -60,6 +60,8 @@ TYPE	int		SortBy;
 TYPE	DATEVAL	dvToday;
 TYPE	DATEVAL	dvYearAgo;
 TYPE	char	ascYearAgo[12];
+TYPE	double	TotalInvest;
+TYPE	double	TotalValue;
 
 #define		MODE_REPORT		'R'
 TYPE	int		RunMode;
@@ -125,6 +127,9 @@ void dorpt_full ( char *DataFilename );
 
 /* getargs.c */
 void getargs ( int argc , char *argv []);
+
+/* gettotal.c */
+int gettotal ( void );
 
 /* getdata.c */
 int EachHistory ( void );

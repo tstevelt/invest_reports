@@ -17,6 +17,7 @@ FILES = \
 	$(LIB)(rpt_portfolio.o)		\
 	$(LIB)(getargs.o)			\
 	$(LIB)(getdata.o)			\
+	$(LIB)(gettotal.o)			\
 	$(LIB)(sortdata.o)			\
 	$(LIB)(dorpt_base.o)		\
 	$(LIB)(dorpt_mstar.o)		\

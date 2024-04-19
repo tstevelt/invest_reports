@@ -17,6 +17,7 @@
 	tms		07/17/2023	Added -broker option
 	tms		02/12/2024	Added MorningStar CSV report
 	tms		03/02/2024	Combinded duplicate tickers in MorningStar report.
+	tms		04/19/2024	Added PERCENT-TOTAL columns to BASE report
 
 ----------------------------------------------------------------------------*/
 //     Invest report
@@ -81,9 +82,14 @@ int main ( int argc, char *argv[] )
 		} while ( rv < 100 );
 	}
 
-	// sprintf ( WhereClause, "Pmember = %ld and Pticker = 'ENB'", ReportMember );
-	sprintf ( WhereClause, "Pmember = %ld", ReportMember );
 
+	if ( ReportStyle == STYLE_BASE )
+	{
+		sprintf ( WhereClause, "Pmember = %ld", ReportMember );
+		LoadPortfolioCB ( &MySql, WhereClause, "Pticker", &xportfolio, (int(*)()) gettotal, 0 );
+	}
+
+	sprintf ( WhereClause, "Pmember = %ld", ReportMember );
 	if ( nsStrlen ( Broker ) > 0 )
 	{
 		sprintf ( Fragment, " and Pbroker = '%s'", Broker );
