@@ -63,11 +63,11 @@ void getargs ( int argc, char *argv[] )
 			xa++;
 			ReportOptions.Format = ValidReportFormatUsage ( argv[xa], (int(*)()) Usage );
 		}
-		else
-		{
-			printf ( "Unknown arg\n" );
-			exit ( 1 );
-		}
+		//else
+		//{
+		//	printf ( "Unknown arg\n" );
+		//	exit ( 1 );
+		//}
 	}
 
 	if ( ReportMember == 0 )
