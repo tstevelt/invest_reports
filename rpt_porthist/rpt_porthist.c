@@ -74,7 +74,7 @@ int main ( int argc, char *argv[] )
 		case RPT_FORMAT_EXCEL:
 		case RPT_FORMAT_TEXT:
 		case RPT_FORMAT_PDF_VIEW:
-			snprintf ( xbuffer, sizeof(xbuffer), "Portfolio Performance  Report - %d stocks", ReportCount);
+			snprintf ( xbuffer, sizeof(xbuffer), "Portfolio Performance  Report - %d days", ReportCount);
 			AttachArray[0] = ReportOptions.OutputFilename;
 			SendAttached ( REPORT_ADDRESS, xmember.xmemail, "", "", xbuffer, 0, NULL, 1, AttachArray );
 			printf ( "Sending %s to %s\n", ReportOptions.OutputFilename, xmember.xmemail );
