@@ -18,6 +18,7 @@
 	tms		02/12/2024	Added MorningStar CSV report
 	tms		03/02/2024	Combinded duplicate tickers in MorningStar report.
 	tms		04/19/2024	Added PERCENT-TOTAL columns to BASE report
+	tms		06/24/2024	IEX dead, changed TODAY to Tiingo
 
 ----------------------------------------------------------------------------*/
 //     Invest report
@@ -49,7 +50,8 @@ int main ( int argc, char *argv[] )
 
 	getargs ( argc, argv );
 
-	GetInvestCfg ( 0 );
+	UseTiingo = 1;
+	GetInvestCfg ( UseTiingo );
 
 	StartMySQL ( &MySql, "invest" );
 

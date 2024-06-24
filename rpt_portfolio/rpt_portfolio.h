@@ -48,6 +48,7 @@
 
 #define		PRICEFILE		"/var/local/tmp/rpt_current.json"
 
+TYPE	int		UseTiingo;
 TYPE	int		Debug;
 TYPE	int		ReportCount;
 TYPE	char	OutFileName[256];

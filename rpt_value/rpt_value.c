@@ -36,7 +36,7 @@ int main ( int argc, char *argv[] )
 
 	getargs ( argc, argv );
 
-	GetInvestCfg ( 0 );
+//	GetInvestCfg ( 0 );
 
 	StartMySQL ( &MySql, "invest" );
 
@@ -86,6 +86,7 @@ int main ( int argc, char *argv[] )
 
 	if ( ReportCount == 0 )
 	{
+		printf ( "Nothing to report, missing necessary data.\n" );
 		return ( 0 );
 	}
 

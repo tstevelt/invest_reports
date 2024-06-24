@@ -424,18 +424,35 @@ if ( Debug )
 			{
 				xl = lastchr ( xportfolio.xpticker, nsStrlen ( xportfolio.xpticker ));
 				xportfolio.xpticker[xl] = '\0';
-				sprintf ( cmdline, "curl -s '%s/stock/%s/quote?format=json&token=%s' > %s",
-					env_ApiURL,
-					xportfolio.xpticker,
-					env_ApiKey,
-					PRICEFILE );
+				if ( UseTiingo )
+				{
+					/*---------------------------------------------------------------------------
+						case "$OPTION" in
+							'-quote' )
+								# curl -s "https://api.tiingo.com/iex/$TICKER?token=$APISTR"  | JsonTree -
+								curl -s "https://api.tiingo.com/iex/$TICKER?token=$APISTR"  | sed 's/,/\n/g'
+								;;
+					env_ApiURL, has /tiingo at the end
+					---------------------------------------------------------------------------*/
+					sprintf ( cmdline, "curl -s 'https://api.tiingo.com/iex/%s?token=%s' > %s",
+						xportfolio.xpticker,
+						env_ApiKey,
+						PRICEFILE );
+				}
+				else
+				{
+					sprintf ( cmdline, "curl -s '%s/stock/%s/quote?format=json&token=%s' > %s",
+						env_ApiURL,
+						xportfolio.xpticker,
+						env_ApiKey,
+						PRICEFILE );
+				}
 
 				IEX_RateLimit ( 0 );
 
 				/*----------------------------------------------------------
 					fixit - still using curl system() instead of library.
 				----------------------------------------------------------*/
-
 				system ( cmdline );
 
 				if (( buffer = JsonOpenFileAndRead ( PRICEFILE )) == NULL )
@@ -446,100 +463,173 @@ if ( Debug )
 					}
 					StockLatestPrice = 0.0;
 				}
-				else if ( nsStrncmp ( buffer, "Unknown symbol", 14 ) == 0 )
-				{
-					if ( Debug )
-					{
-						printf ( "Unknown symbol %s<br>\n", xstock.xsticker );
-						printf ( "%s<br>\n", cmdline );
-					}
-					StockLatestPrice = 0.0;
-				}
-				else
+
+				if ( UseTiingo == 0 )
 				{
 					/*----------------------------------------------------------
-						get open price, first check to see if "official"
-						otherwise, get iexopen and set openflag
+						IEX dead
 					----------------------------------------------------------*/
-					StockOpenPrice = 0.0;
-					StockOpenFlag = ' ';
-					ptrNameValue = JsonScan ( buffer, "openTime", JSON_FIRST );
-					if ( ptrNameValue != NULL && (StockOpenTime = NoMilliseconds ( ptrNameValue->Value )) > 0 )
+					if ( nsStrncmp ( buffer, "Unknown symbol", 14 ) == 0 )
 					{
+						if ( Debug )
+						{
+							printf ( "Unknown symbol %s<br>\n", xstock.xsticker );
+							printf ( "%s<br>\n", cmdline );
+						}
+						StockLatestPrice = 0.0;
+					}
+					else
+					{
+						/*----------------------------------------------------------
+							get open price, first check to see if "official"
+							otherwise, get iexopen and set openflag
+						----------------------------------------------------------*/
+						StockOpenPrice = 0.0;
+						StockOpenFlag = ' ';
+						ptrNameValue = JsonScan ( buffer, "openTime", JSON_FIRST );
+						if ( ptrNameValue != NULL && (StockOpenTime = NoMilliseconds ( ptrNameValue->Value )) > 0 )
+						{
+							ptrNameValue = JsonScan ( buffer, "open", JSON_FIRST );
+							if ( ptrNameValue != NULL )
+							{
+								StockOpenPrice = nsAtof ( ptrNameValue->Value );
+							}
+						}
+						else
+						{
+							ptrNameValue = JsonScan ( buffer, "iexOpen", JSON_FIRST );
+							if ( ptrNameValue != NULL )
+							{
+								StockOpenPrice = nsAtof ( ptrNameValue->Value );
+							}
+							StockOpenFlag = 'X';
+
+							ptrNameValue = JsonScan ( buffer, "iexOpenTime", JSON_FIRST );
+							if ( ptrNameValue != NULL )
+							{
+								StockOpenTime = NoMilliseconds ( ptrNameValue->Value );
+							}
+
+						}
+
+						/*----------------------------------------------------------
+							get close price, first check to see if "official"
+							otherwise, get iexclose and set closeflag
+						----------------------------------------------------------*/
+						StockClosePrice = 0.0;
+						StockCloseFlag = ' ';
+						ptrNameValue = JsonScan ( buffer, "closeTime", JSON_FIRST );
+						if ( ptrNameValue != NULL && (StockCloseTime = NoMilliseconds ( ptrNameValue->Value )) > 0 )
+						{
+							ptrNameValue = JsonScan ( buffer, "close", JSON_FIRST );
+							if ( ptrNameValue != NULL )
+							{
+								StockClosePrice = nsAtof ( ptrNameValue->Value );
+							}
+						}
+						else
+						{
+							ptrNameValue = JsonScan ( buffer, "iexClose", JSON_FIRST );
+							if ( ptrNameValue != NULL )
+							{
+								StockClosePrice = nsAtof ( ptrNameValue->Value );
+							}
+							StockCloseFlag = 'X';
+
+							ptrNameValue = JsonScan ( buffer, "iexCloseTime", JSON_FIRST );
+							if ( ptrNameValue != NULL )
+							{
+								StockCloseTime = NoMilliseconds ( ptrNameValue->Value );
+							}
+						}
+
+						/*----------------------------------------------------------
+							get latest price
+						----------------------------------------------------------*/
+						StockLatestPrice = 0.0;
+						ptrNameValue = JsonScan ( buffer, "latestPrice", JSON_FIRST );
+						if ( ptrNameValue != NULL )
+						{
+							StockLatestPrice = nsAtof ( ptrNameValue->Value );
+						}
+
+						/*----------------------------------------------------------
+							free json buffer
+						----------------------------------------------------------*/
+						free ( buffer );
+						
+						if ( StockCloseTime > StockOpenTime && ReportStyle == STYLE_OVERNIGHT )
+						{
+							printf ( "%s - wrong time of day for this report.<br>\n", xportfolio.xpticker );
+							printf ( "StockCloseTime %ld greater than StockOpenTime %ld<br>\n", StockCloseTime, StockOpenTime );
+						}
+					}
+				}
+				else if ( ReportStyle == STYLE_TODAY )
+				{
+					/*----------------------------------------------------------
+						Tiingo
+					----------------------------------------------------------*/
+					if ( nsStrstr ( buffer, "Not Found" ) != NULL )
+					{
+						if ( Debug )
+						{
+							printf ( "Unknown symbol %s<br>\n", xstock.xsticker );
+							printf ( "%s<br>\n", cmdline );
+						}
+						StockLatestPrice = 0.0;
+					}
+					else
+					{
+/*---------------------------------------------------------------------------
+[{"ticker":"IBM"
+"timestamp":"2024-06-24T10:28:57.053159184-04:00"
+"lastSaleTimestamp":"2024-06-24T10:28:57.053159184-04:00"
+"quoteTimestamp":"2024-06-24T10:28:50.950142514-04:00"
+"open":174.69
+"high":178.46
+"low":174.31
+"mid":179.55
+"tngoLast":177.97
+"last":177.97
+"lastSize":10
+"bidSize":400
+"bidPrice":174.1
+"askPrice":185.0
+"askSize":162
+"prevClose":172.46
+"volume":39782}]
+---------------------------------------------------------------------------*/
+						StockOpenPrice = 0.0;
+						StockOpenFlag = ' ';
+						StockLatestPrice = 0.0;
+
 						ptrNameValue = JsonScan ( buffer, "open", JSON_FIRST );
 						if ( ptrNameValue != NULL )
 						{
 							StockOpenPrice = nsAtof ( ptrNameValue->Value );
 						}
-					}
-					else
-					{
-						ptrNameValue = JsonScan ( buffer, "iexOpen", JSON_FIRST );
+
+						/*----------------------------------------------------------
+							get latest price
+							"last" gets date instead of price
+						----------------------------------------------------------*/
+						ptrNameValue = JsonScan ( buffer, "tngoLast", JSON_FIRST );
 						if ( ptrNameValue != NULL )
 						{
-							StockOpenPrice = nsAtof ( ptrNameValue->Value );
-						}
-						StockOpenFlag = 'X';
-
-						ptrNameValue = JsonScan ( buffer, "iexOpenTime", JSON_FIRST );
-						if ( ptrNameValue != NULL )
-						{
-							StockOpenTime = NoMilliseconds ( ptrNameValue->Value );
+							StockLatestPrice = nsAtof ( ptrNameValue->Value );
 						}
 
+						/*----------------------------------------------------------
+							free json buffer
+						----------------------------------------------------------*/
+						free ( buffer );
 					}
-
-					/*----------------------------------------------------------
-						get close price, first check to see if "official"
-						otherwise, get iexclose and set closeflag
-					----------------------------------------------------------*/
-					StockClosePrice = 0.0;
-					StockCloseFlag = ' ';
-					ptrNameValue = JsonScan ( buffer, "closeTime", JSON_FIRST );
-					if ( ptrNameValue != NULL && (StockCloseTime = NoMilliseconds ( ptrNameValue->Value )) > 0 )
-					{
-						ptrNameValue = JsonScan ( buffer, "close", JSON_FIRST );
-						if ( ptrNameValue != NULL )
-						{
-							StockClosePrice = nsAtof ( ptrNameValue->Value );
-						}
-					}
-					else
-					{
-						ptrNameValue = JsonScan ( buffer, "iexClose", JSON_FIRST );
-						if ( ptrNameValue != NULL )
-						{
-							StockClosePrice = nsAtof ( ptrNameValue->Value );
-						}
-						StockCloseFlag = 'X';
-
-						ptrNameValue = JsonScan ( buffer, "iexCloseTime", JSON_FIRST );
-						if ( ptrNameValue != NULL )
-						{
-							StockCloseTime = NoMilliseconds ( ptrNameValue->Value );
-						}
-					}
-
-					/*----------------------------------------------------------
-						get latest price
-					----------------------------------------------------------*/
-					StockLatestPrice = 0.0;
-					ptrNameValue = JsonScan ( buffer, "latestPrice", JSON_FIRST );
-					if ( ptrNameValue != NULL )
-					{
-						StockLatestPrice = nsAtof ( ptrNameValue->Value );
-					}
-
-					/*----------------------------------------------------------
-						free json buffer
-					----------------------------------------------------------*/
-					free ( buffer );
-					
-					if ( StockCloseTime > StockOpenTime && ReportStyle == STYLE_OVERNIGHT )
-					{
-						printf ( "%s - wrong time of day for this report.<br>\n", xportfolio.xpticker );
-						printf ( "StockCloseTime %ld greater than StockOpenTime %ld<br>\n", StockCloseTime, StockOpenTime );
-					}
+				}
+				else
+				{
+					printf ( "OVERNIGHT not finished/supported at Tiingo.<br>\n" );
+					return ( -1 );
 				}
 			}
 
