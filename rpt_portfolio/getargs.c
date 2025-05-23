@@ -27,6 +27,7 @@ static void Usage ()
 	printf ( " -sort {ticker*|gain|roi|compared|}\n" );
 	printf ( " -fmt {csv*|txt|html|email|xlsx|others not available\n" );
 	printf ( " -d   = debug, prints alert or report, does not send email\n" );
+	printf ( " -nodel\n" );
 	printf ( " * default value\n" );
 	exit ( 1 );
 }
@@ -55,6 +56,8 @@ void getargs ( int argc, char *argv[] )
 		Usage ();
 	}
 	
+	Debug = 0;
+	DeleteFiles = 1;
 	ReportOptions.Format = RPT_FORMAT_CSV;
 	RunMode = MODE_REPORT;
 	ReportStyle = STYLE_BASE;
@@ -66,6 +69,10 @@ void getargs ( int argc, char *argv[] )
 		if ( nsStrcmp ( argv[xa], "-d" ) == 0 )
 		{
 			Debug = 1;
+		}
+		else if ( nsStrcmp ( argv[xa], "-nodel" ) == 0 )
+		{
+			DeleteFiles = 0;
 		}
 		else if ( xa + 1 < argc && nsStrcmp ( argv[xa], "-fmt" ) == 0 )
 		{

@@ -13,12 +13,13 @@
 	tms		07/13/2021	Get private api keys with GetInvestCfg().
 	tms		04/15/2022	Added Pdate to BASIC
 	tms		08/23/2022	Added stock.Sgrow5 field and FUNDAMENTAL report
-	tms		01/23/2023	Added Year Over Year performance report.
+	tms		01/23/2023	** Added Year Over Year performance report.
 	tms		07/17/2023	Added -broker option
 	tms		02/12/2024	Added MorningStar CSV report
 	tms		03/02/2024	Combinded duplicate tickers in MorningStar report.
 	tms		04/19/2024	Added PERCENT-TOTAL columns to BASE report
 	tms		06/24/2024	IEX dead, changed TODAY to Tiingo
+	tms		11/05/2024	Revised Year Over Year; limit to member holdings.
 
 ----------------------------------------------------------------------------*/
 //     Invest report
@@ -71,19 +72,25 @@ int main ( int argc, char *argv[] )
 	if ( ReportStyle == STYLE_YOY )
 	{
 		DateAdd ( &dvToday, -365, &dvYearAgo );
-		do
-		{
-			sprintf ( WhereClause, "Hdate = '%04d-%02d-%02d'", dvYearAgo.year4, dvYearAgo.month, dvYearAgo.day );
-			rv = dbySelectCount ( &MySql, "history", WhereClause, LogFileName );
-			if ( rv > 100 )
+		/*---------------------------------------------------------------------------
+			IEX_DEAD -- no longer have many (>100) history records.
+			do
 			{
-				sprintf ( ascYearAgo, "%04d-%02d-%02d", dvYearAgo.year4, dvYearAgo.month, dvYearAgo.day );
-				break;
-			}
-			DateAdd ( &dvYearAgo, 1, &dvYearAgo );
-		} while ( rv < 100 );
-	}
+				sprintf ( WhereClause, "Hdate = '%04d-%02d-%02d'", dvYearAgo.year4, dvYearAgo.month, dvYearAgo.day );
+				rv = dbySelectCount ( &MySql, "history", WhereClause, LogFileName );
 
+				if ( rv > 100 )
+				{
+					sprintf ( ascYearAgo, "%04d-%02d-%02d", dvYearAgo.year4, dvYearAgo.month, dvYearAgo.day );
+					break;
+				}
+				DateAdd ( &dvYearAgo, 1, &dvYearAgo );
+			} while ( rv < 100 );
+		---------------------------------------------------------------------------*/
+		sprintf ( ascYearAgo, "%04d-%02d-%02d", dvYearAgo.year4, dvYearAgo.month, dvYearAgo.day );
+// printf ( "STYLE_YOY: %s\n", ascYearAgo );
+// exit ( 0 );
+	}
 
 	if ( ReportStyle == STYLE_BASE )
 	{
@@ -98,7 +105,14 @@ int main ( int argc, char *argv[] )
 		nsStrcat ( WhereClause, Fragment );
 	}
 
-	LoadPortfolioCB ( &MySql, WhereClause, "Pticker,Pdate", &xportfolio, (int(*)()) getdata, 1 );
+	if ( ReportStyle == STYLE_YOY )
+	{
+		LoadPortfolioCB ( &MySql, WhereClause, "Pticker,Pdate", &xportfolio, (int(*)()) getdata, 1 );
+	}
+	else
+	{
+		LoadPortfolioCB ( &MySql, WhereClause, "Pticker,Pdate", &xportfolio, (int(*)()) getdata, 1 );
+	}
 
 	if ( ReportCount == 0 )
 	{
@@ -237,13 +251,13 @@ int main ( int argc, char *argv[] )
 			break;
 	}
 		
-	if ( Debug )
+	if ( Debug || DeleteFiles == 0 )
 	{
 		printf ( "%s\n", OutFileName );
 		printf ( "%s\n", ReportOptions.OutputFilename );
 		printf ( "%s\n", PRICEFILE );
 	}
-	else
+	else if ( DeleteFiles )
 	{
 		unlink ( OutFileName );
 		unlink ( ReportOptions.OutputFilename );

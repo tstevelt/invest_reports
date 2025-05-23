@@ -91,6 +91,7 @@ xxx	SummaryArray[3].Percent         = 10.1;
 			break;
 	}
 
+	dbyClose ( &MySql );
 	unlink ( OutFileName );
 	unlink ( ReportOptions.OutputFilename );
 

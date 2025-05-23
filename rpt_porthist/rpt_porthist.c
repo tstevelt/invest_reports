@@ -6,6 +6,7 @@
 
 	Who		Date		Modification
 	---------------------------------------------------------------------
+	tms		05/14/2025	Reverse sort and stop when we find high value
 
 ----------------------------------------------------------------------------*/
 //     Invest report
@@ -65,6 +66,8 @@ int main ( int argc, char *argv[] )
 		return ( 0 );
 	}
 	nsFclose ( fpOutput );
+
+	sortdata ();
 
 	dorpt ( OutFileName );
 

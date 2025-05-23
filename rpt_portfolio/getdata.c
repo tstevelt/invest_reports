@@ -162,6 +162,7 @@ int getdata ()
 		/*----------------------------------------------------------
 			if stock owned over one year, get year ago price
 		----------------------------------------------------------*/
+#ifdef ONLY_HELD_FOR_YEAR_OR_MORE
 		if ( nsStrcmp ( xportfolio.xpdate, ascYearAgo ) < 0 )
 		{
 			sprintf ( WhereClause, "Hticker = '%s' and Hdate = '%s'", xportfolio.xpticker, ascYearAgo );
@@ -174,6 +175,17 @@ int getdata ()
 			}
 			StockStartPrice = xhistory.xhclose;
 		}
+#else
+		sprintf ( WhereClause, "Hticker = '%s' and Hdate = '%s'", xportfolio.xpticker, ascYearAgo );
+		if (( rv = LoadHistory ( &MySql, WhereClause, &xhistory, 0 )) != 1 )
+		{
+			fprintf ( stderr, 
+				"LoadHistory returned %d, cannot find year ago price for %s %s<br>\n",
+						rv, xportfolio.xpticker, xportfolio.xpdate );
+			return ( 0 );
+		}
+		StockStartPrice = xhistory.xhclose;
+#endif
 
 	}
 
@@ -202,7 +214,7 @@ int getdata ()
 			/*----------------------------------------------------------
 				set current to cost for CASH accounts.  tms 07/09/2022
 			----------------------------------------------------------*/
-			if ( xstock.xstype[0] == STYPE_CRYPTO || xstock.xslast == NULL || nsStrncmp ( xstock.xslast, "(null)", 6 ) == 0 )
+			if ( xstock.xstype[0] == STYPE_CRYPTO || xstock.xslast[0] != '2'|| nsStrncmp ( xstock.xslast, "(null)", 6 ) == 0 )
 			{
 //				printf ( "Stock %s does not have any history\n", xportfolio.xpticker );
 //				return ( 0 );
@@ -803,61 +815,17 @@ if ( Debug )
 			break;
 
 		case STYLE_YOY:
-			/*---------------------------------------------------------------------------
-				TICKER COMPANY  DATE  LAST-YEAR   THIS-YEAR  DIVIDENDS   CHANGE   RETURN
-				DATE is either one year ago, or purchase date if not held over a year.
-			---------------------------------------------------------------------------*/
 			fprintf ( fpOutput, "%c|", xstock.xstype[0] );
 			fprintf ( fpOutput, "%s|", xportfolio.xpticker );
 			fprintf ( fpOutput, "%s|", xstock.xsname );
-			if ( OwnedYears > 1.0 )
-			{
-				fprintf ( fpOutput, "%s| |", ascYearAgo );
-				CollectedDividends = xstock_ttm_dividends;
-			}
-			else
-			{
-				fprintf ( fpOutput, "%s|*|", xportfolio.xpdate );
-			}
-
+			fprintf ( fpOutput, "%s|", xportfolio.xpdate );
 			fprintf ( fpOutput, "%d|", OwnedDays );
 			fprintf ( fpOutput, "%.2f|", StockStartPrice      * xportfolio.xpshares);
 			fprintf ( fpOutput, "%.2f|", StockYesterdayClose  * xportfolio.xpshares);
 
-			/*----------------------------------------------------------
-				this is collected div in past year or since bought later
-			----------------------------------------------------------*/
-			fprintf ( fpOutput, "%.2f|", CollectedDividends * xportfolio.xpshares );
-
-			/*----------------------------------------------------------
-				current yield is based on ttm dividends regardless of OwnedYears
-			----------------------------------------------------------*/
-			Percent = 100.0 * xstock_ttm_dividends / StockYesterdayClose;
-			fprintf ( fpOutput, "%.2f|", Percent );
-
-			/*----------------------------------------------------------
-				again based on collected
-			----------------------------------------------------------*/
-			fprintf ( fpOutput, "%.2f|", (StockYesterdayClose - StockStartPrice + CollectedDividends) * xportfolio.xpshares );
-			Percent = 100.0 * (StockYesterdayClose - StockStartPrice + CollectedDividends) / StockStartPrice;
-			fprintf ( fpOutput, "%.2f|", Percent );
-
-			/*---------------------------------------------------------------------------
-				compare current price to target price
-			---------------------------------------------------------------------------*/
-			if ( HaveFundamentals )
-			{
-				Percent = 100.0 * StockYesterdayClose / (double)xfundamental.xftarget;
-				fprintf ( fpOutput, "%.2f|", Percent );
-
-			}
-			else
-			{
-				fprintf ( fpOutput, " |" );
-			}
-
-			fprintf ( fpOutput, "%.1f|", xfundamental.xfgrow1 );
-			fprintf ( fpOutput, "%.1f|", xfundamental.xfgrow5 );
+			double Gain = (StockYesterdayClose - StockStartPrice) * xportfolio.xpshares;
+			double ROI  = 100.0 * Gain / (StockStartPrice * xportfolio.xpshares);
+			fprintf ( fpOutput, "%.2f|%.2f|", Gain, ROI );
 
 			break;
 

@@ -64,7 +64,7 @@ int getdata ()
 	fread ( Statement, sizeof(Statement), 1, fp );
 	nsStrcpy ( Statement2, Statement );
 
-printf ( "%s\n", Statement );
+// printf ( "%s\n", Statement );
 
 	nsFclose ( fp );
 

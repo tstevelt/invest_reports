@@ -38,18 +38,18 @@ int getdata_portfolio ()
 
 	switch ( xstock.xstype[0] )
 	{
-		case 'C':
+		case STYPE_CRYPTO: // case 'C':
 			StockCurrentPrice = StockStartPrice;
 			snprintf ( Key.Sector, sizeof(Key.Sector), "~Cash" );
 			snprintf ( Key.Industry, sizeof(Key.Industry), "~Cash" );
 			break;
-		case 'B':
+		case STYPE_BOND: // case 'B':
 			StockCurrentPrice = 1000.0;
 			snprintf ( Key.Sector, sizeof(Key.Sector), "~Bonds" );
 			snprintf ( Key.Industry, sizeof(Key.Industry), "~Bonds" );
 			break;
 		default:
-			if ( xstock.xslast == NULL || nsStrncmp ( xstock.xslast, "(null)", 6 ) == 0 )
+			if ( nsStrncmp ( xstock.xslast, "(null)", 6 ) == 0 )
 			{
 				if ( Debug )
 				{
@@ -69,7 +69,7 @@ int getdata_portfolio ()
 			}
 			StockCurrentPrice = xhistory.xhclose;
 
-			if (  xstock.xstype[0] == 'E' )
+			if (  xstock.xstype[0] == STYPE_ETF ) // if (  xstock.xstype[0] == 'E' )
 			{
 				snprintf ( Key.Sector, sizeof(Key.Sector), "~Funds" );
 				snprintf ( Key.Industry, sizeof(Key.Industry), "~Funds" );

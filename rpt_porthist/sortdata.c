@@ -15,37 +15,14 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include	"rpt_target.h"
+#include	"rpt_porthist.h"
 
-int MapStype ()
+void sortdata ()
 {
-	switch ( xstock.xstype[0] )
-	{
-		case STYPE_CRYPTO:
-		case STYPE_FX:
-			return ( CASH );
+	char	cmdline[1024];
 
-		case STYPE_BOND:
-			return ( BOND_AND_CD );
+	sprintf ( cmdline,
+		"sort -r -t '|' -k 1,1 -o %s %s", OutFileName, OutFileName );
 
-		case STYPE_ETF:
-		case STYPE_PREFER:
-		case STYPE_STOCK:
-		case STYPE_ADR:
-		case STYPE_REIT:
-			if ( xstock.xsdomfor[0] == 'D' )
-			{
-				return ( DOMESTIC_EQUITY );
-			}
-			else
-			{
-				return ( FOREIGN_EQUITY );
-			}
-
-		case STYPE_INDEX:
-		case STYPE_OTHER:
-			printf ( "Unknown stock type %c in portfolio, %s\n", xstock.xstype[0], xstock.xsticker );
-			exit ( 1 );
-	}
-	return ( 0 );
+	system ( cmdline );
 }

@@ -17,6 +17,9 @@
 
 #include	"rpt_porthist.h"
 
+#define	LIMIT_NUMBER_PRINTED
+#undef	LIMIT_NUMBER_PRINTED
+
 static	COLUMN_HEADINGS	ColumnArray[] = 
 {
 	{ "DATE",	"",		INIT_STRING_LEFT },
@@ -42,6 +45,8 @@ void dorpt ( char *DataFilename )
 	char	*tokens[MAXTOKS];
 	int		tokcnt;
 	FILE	*fpData;
+	double	HighValue;
+	int		lineno;
 
 	ReportOptions.HeaderRows = 1;
 	ReportOptions.Title = "PORTFOLIO PERFORMANCE REPORT";
@@ -67,11 +72,32 @@ void dorpt ( char *DataFilename )
 
 	fpData = rptinit ( DataFilename, &ReportOptions, ColumnArray, ColumnCount );
 
+	lineno = 0;
 	while ( fgets ( xbuffer, sizeof(xbuffer), fpData ) != (char *)0 )
 	{
+		lineno++;
+
 		tokcnt = GetTokensA ( xbuffer, "|\n\r", tokens, MAXTOKS );
 
+		if ( lineno == 1 )
+		{
+			HighValue = atof(tokens[10]);
+		}
+#ifdef LIMIT_NUMBER_PRINTED
+		else if ( lineno > 100 || HighValue > atof(tokens[10]) )
+		{
+			break;
+		}
+#endif
+
 		rptline ( &ReportOptions, ColumnArray, ColumnCount, tokens, imin(tokcnt,ColumnCount) );
+
+#ifndef LIMIT_NUMBER_PRINTED
+		if ( HighValue > atof(tokens[10]) )
+		{
+			break;
+		}
+#endif
 	}
 
 	rptclose ( &ReportOptions );

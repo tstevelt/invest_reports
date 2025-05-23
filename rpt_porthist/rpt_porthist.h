@@ -88,6 +88,9 @@ void dorpt_fundamental ( char *DataFilename );
 /* getdata.c */
 int getdata ( void );
 
+/* sortdata.c */
+void sortdata ( void );
+
 /* EachFundamental.c */
 int EachFundamental ( void );
 

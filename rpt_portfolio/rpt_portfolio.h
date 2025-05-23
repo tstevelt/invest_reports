@@ -50,6 +50,7 @@
 
 TYPE	int		UseTiingo;
 TYPE	int		Debug;
+TYPE	int		DeleteFiles;
 TYPE	int		ReportCount;
 TYPE	char	OutFileName[256];
 TYPE	FILE	*fpOutput;

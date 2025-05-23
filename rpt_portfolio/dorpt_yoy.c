@@ -23,17 +23,11 @@ static	COLUMN_HEADINGS	ColumnArray[] =
 	{ "TICKER",		"",		INIT_STRING_LEFT },
 	{ "COMPANY",	"",		INIT_STRING_LEFT },
 	{ "DATE",		"",		INIT_STRING_LEFT },
-	{ "SHORT",		"",		INIT_STRING_CENTER },
 	{ "DAYS",		"",		INIT_LONG_RIGHT },
 	{ "LAST-YEAR",	"",		INIT_DOUBLE_RIGHT_TOTAL },
 	{ "THIS-YEAR",	"",		INIT_DOUBLE_RIGHT_TOTAL },
-	{ "DIVIDENDS",	"",		INIT_DOUBLE_RIGHT_TOTAL },
-	{ "CURR-YLD",	"",		INIT_DOUBLE_RIGHT },
-	{ "YOY_GAIN",	"",		INIT_DOUBLE_RIGHT_TOTAL },
-	{ "YOY_ROI",	"",		INIT_DOUBLE_RIGHT },
-	{ "PCT-TRGT",	"",		INIT_DOUBLE_RIGHT },
-	{ "1YR_GROW",	"",		INIT_DOUBLE_RIGHT },
-	{ "5YR_GROW",	"",		INIT_DOUBLE_RIGHT },
+	{ "GAIN",		"",		INIT_DOUBLE_RIGHT_TOTAL },
+	{ "ROI",		"",		INIT_DOUBLE_RIGHT },
 };
 
 static	int				ColumnCount = sizeof(ColumnArray) / sizeof(COLUMN_HEADINGS);
@@ -47,8 +41,8 @@ void dorpt_yoy ( char *DataFilename )
 	FILE	*fpData;
 
 	ReportOptions.HeaderRows = 1;
-	ReportOptions.Title = "PORTFOLIO YEAR-OVER-YEAR PERFORMANCE";
-	ReportOptions.Subtitle = "";
+	ReportOptions.Title = "PORTFOLIO YEAR-OVER-YEAR PRICE PERFORMANCE";
+	ReportOptions.Subtitle = "DOES NOT INCLUDE DIVIDENDS";
 	ReportOptions.BreakCount = 0;
 	switch ( ReportOptions.Format )
 	{

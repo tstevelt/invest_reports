@@ -1,20 +1,15 @@
 
 PROG=rpt_allocation
-DEF = /usr/local/include
 
+ifeq ($(LDFLAGS),"-m32")
+LIB = rpt_allocation.a
+XLIB = /usr/local/lib/invlib.a /usr/local/lib/dbylib.a /usr/local/lib/rptlib.a /usr/local/lib/shslib.a  -luuid -lcrypto -lm
+else
 LIB = rpt_allocation_64.a
-# XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a /usr/local/lib64/rptlib.a /usr/local/lib64/shslib.a  /usr/lib64/libmysqlclient.so  /usr/local/lib64/libxlsxwriter.a -lz -lssl -luuid -lcrypto -lm
+XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a /usr/local/lib64/rptlib.a /usr/local/lib64/shslib.a  /usr/lib64/libmysqlclient.so  /usr/local/lib64/libxlsxwriter.a -lz -lssl -luuid -lcrypto -lm
+endif
 
-XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a /usr/local/lib64/shslib.a  \
-		/usr/local/lib/libmysqlclient.a \
-		/usr/local/lib64/rptlib.a \
-		/usr/local/lib/libcrypto.a \
-		/usr/local/lib/libxlsxwriter.a \
-		/usr/local/lib/libssl.a \
-		/usr/local/Cellar/zlib/1.3.1/lib/libz.a
-
-
-# libta_lib.a
+DEF = /usr/local/include
 
 PRG = /usr/local/bin/$(PROG)
 

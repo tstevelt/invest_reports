@@ -64,7 +64,7 @@ void sortdata ( char *OutFileName )
 			switch ( ReportStyle )
 			{
 				case STYLE_BASE:
-					FldNo = 11;
+					FldNo = 13;
 					break;
 				case STYLE_TODAY:
 					FldNo = 5;

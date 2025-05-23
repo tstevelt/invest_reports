@@ -1,4 +1,4 @@
-//     Invest report
+
 // 
 //     Copyright (C)  2019 - 2024 Tom Stevelt
 // 
@@ -48,6 +48,7 @@ int EachBasic ()
 			PreviousPrice = HistoryArray[1].Close;
 			break;
 	}
+
 	PriceChangePercent = 100.0 * ( CurrentPrice - PreviousPrice ) / PreviousPrice;
 
 	ReportCount++;
@@ -64,7 +65,18 @@ int EachBasic ()
 	fprintf ( fpOutput, "%s|",   xwatchlist.xwticker );
 	fprintf ( fpOutput, "%s|",   xstock.xsname );
 	fprintf ( fpOutput, "%.2f|", PriceChangePercent );
-	fprintf ( fpOutput, "%.2f|", CurrentPrice );
+	if ( xstock.xstype[0] == STYPE_FX && xstock.xstype2[0] == STYPE2_HUNDREDTH )
+	{
+		fprintf ( fpOutput, "%.2f (H)|", CurrentPrice );
+	}
+	else if ( xstock.xstype[0] == STYPE_FX && xstock.xstype2[0] == STYPE2_BASIS )
+	{
+		fprintf ( fpOutput, "%.2f (B)|", CurrentPrice );
+	}
+	else
+	{
+		fprintf ( fpOutput, "%.2f ___|", CurrentPrice );
+	}
 
 	switch ( xwatchlist.xwalerttype[0] )
 	{
